@@ -1,0 +1,92 @@
+# Parametrised constructs
+List[item]         -> item ("\n" item)* "\n"? | item ("," item)* ","?
+Left[op, operand]  -> (Left[op, operand] op)? operand
+Right[op, operand] -> operand (op Right[op, operand])?
+
+# Main
+program            -> List[expression]? EOF
+expression         -> keyword | operation
+
+keyword            -> declaration
+                    | if | match | for | while | throw | try                # "flow" control
+                    | func | type | interface | exception | enum | module   # definitions
+                    | iter | mutable                                        # modifiers
+                    | assert | defer                                        # other
+declaration        -> ("let" | "var") typehint? pattern (OP_ASSIGN expression)?
+typehint           -> "<" expression ">"
+if                 -> "if" expression "then" expression ("else" expression)?
+match              -> "match" expression "in" "{" List[case] "}" ("else" expression)?
+try                -> "try" expression "catch" "{" List[case] "}" ("else" expression)?
+case               -> pattern ("if" expression)? "->" expression
+for                -> "for" List[loopvars] "yield" "from"? expression
+while              -> "while" expression "yield" "from"? expression
+throw              -> "throw" expression
+func               -> "func" ("[" List[typeparam] "]")? paramlist "->" expression
+paramlist          -> ("self" | param) ("\n" param)* "\n"?
+                    | ("self" | param) ("," param)* ","?
+param              -> typehint NAME (":" expression)?
+type               -> "type" ("[" List[typeparam] "]")? ("<" expression)? block
+interface          -> "interface" ("[" List[typeparam] "]")? ("<" expression)? block
+exception          -> "exception" ("[" List[typeparam] "]")? ("<" expression)? block
+typeparam          -> ("+" | "-" | "=")? NAME (("<" | "<=") expression)?
+enum               -> "enum" "flags"? "{" List[enumitem] "}"
+enumitem           -> NAME (":" NUMBER)?
+module             -> "module" block
+iter               -> "iter" (list | for | while)
+mutable            -> "mutable" (type | iter | mapping | list | STRING)
+assert             -> "assert" expression ("throws" expression)?
+defer              -> "defer" expression
+
+operation          -> boolor
+boolor             -> Left["or", boolnor]       # any() - returns the first truthy argument, else the last
+boolnor            -> Left["nor", boolxor]
+boolxor            -> Left["xor", boolxnor]     # parity()
+boolxnor           -> Left["xnor", booland]
+booland            -> Left["and", boolnand]     # all() - return the first falsey argument, else the last
+boolnand           -> Left["nand", comparison]
+comparison         -> Left[OP_COMP, arrow]      # more?(), less?(), equal?(), contains?()
+arrow              -> Right["->", bitor]        # arrow()
+bitor              -> Left["|", bitnor]         # union()
+bitnor             -> Left["!|", bitxor]
+bitxor             -> Left["^", bitxnor]        # difference()
+bitxnor            -> Left["!^", bitand]
+bitand             -> Left["&", bitnand]        # intersection()
+bitnand            -> Left["!&", shift]
+shift              -> Left[("<<" | ">>"), add]  # lshift(), rshift()
+add                -> Left[("+" | "-"), mult]   # sum(), sub()
+mult               -> Left[("*" | "/" | "%"), exponent]  # prod(), div(),  mod()
+exponent           -> Right["**", unary]        # power()
+unary              -> ("not" | "!" | "+" | "-") unary  # inv(), pos(), neg()
+                    | primary
+
+primary            -> atom ("." NAME | arglist | list)*
+arglist            -> "(" List[arg]? ")"
+arg                -> (NAME ":")? expression
+atom               -> block | mapping | list | grouping | identifier | literal
+block              -> "{" List[expression] "}"
+mapping            -> "[" List[pair]? "]"
+pair               -> expression "->" expression | "*" expression
+list               -> "[" List[listitem]? "]"
+listitem           -> expression | "*" expression | range
+range              -> expression ".." ("="? expression)? (":" unary)?
+grouping           -> "(" List[(NAME ":")? expression]? ")"
+identifier         -> NAME
+literal            -> STRING | NUMBER | "true" | "false" | "none" | "break" | "continue"
+
+pattern            -> branch ("|" branch)* ("as" name)?
+branch             -> instance
+                    | value
+                    | p_mapping
+                    | p_list
+                    | p_grouping
+                    | binding
+                    | p_literal
+value              -> "=" primary
+instance           -> identifier "(" List[(NAME ":")? pattern]? ")"
+p_mapping          -> "[" List[pair]? "]"
+p_pair             -> pattern ":" pattern | "*" binding
+p_list             -> "[" List[listitem]? "]"
+p_listitem         -> pattern | "*" binding
+p_grouping         -> "(" List[(NAME ":")? pattern]? ")"
+binding            -> NAME | identifier ("." NAME)*
+p_literal          -> literal | ("+"|"-")? NUMBER (("+"|"-") NUMBER)?  # For matching negative and complex numbers
