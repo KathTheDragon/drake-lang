@@ -17,7 +17,7 @@ typehint           -> "<" expression ">"
 if                 -> "if" expression "then" expression ("else" expression)?
 match              -> "match" expression "in" "{" List[case] "}" ("else" expression)?
 try                -> "try" expression "catch" "{" List[case] "}" ("else" expression)?
-case               -> pattern ("if" expression)? "->" expression
+case               -> pattern ("if" expression)? ":" expression
 for                -> "for" List[loopvars] "yield" "from"? expression
 while              -> "while" expression "yield" "from"? expression
 throw              -> "throw" expression
@@ -65,7 +65,7 @@ arg                -> (NAME ":")? expression
 atom               -> block | mapping | list | grouping | identifier | literal
 block              -> "{" List[expression] "}"
 mapping            -> "[" List[pair]? "]"
-pair               -> expression "->" expression | "*" expression
+pair               -> expression ":" expression | "*" expression
 list               -> "[" List[listitem]? "]"
 listitem           -> expression | "*" expression | range
 range              -> expression ".." ("="? expression)? (":" unary)?
