@@ -58,6 +58,7 @@ add                -> Left[("+" | "-"), mult]   # sum(), sub()
 mult               -> Left[("*" | "/" | "%"), exponent]  # prod(), div(),  mod()
 exponent           -> Right["**", unary]        # power()
 unary              -> ("not" | "!" | "+" | "-") unary  # inv(), pos(), neg()
+                    | unary "?"                 # maybe()
                     | primary
 
 primary            -> atom ("." NAME | arglist | list)*
