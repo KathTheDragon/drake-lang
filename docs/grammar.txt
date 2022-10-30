@@ -11,7 +11,7 @@ keyword            -> declaration
                     | if | match | for | while | throw | try                # "flow" control
                     | func | type | interface | exception | enum | module   # definitions
                     | iter | mutable                                        # modifiers
-                    | assert | defer                                        # other
+                    | assert | defer | import                               # other
 declaration        -> ("let" | "var") typehint? pattern (OP_ASSIGN expression)?
 typehint           -> "<" expression ">"
 if                 -> "if" expression "then" expression ("else" expression)?
@@ -36,6 +36,7 @@ iter               -> "iter" (list | for | while)
 mutable            -> "mutable" (type | iter | mapping | list | STRING)
 assert             -> "assert" expression ("throws" expression)?
 defer              -> "defer" expression
+import             -> "import" STRING
 
 operation          -> boolor
 boolor             -> Left["or", boolnor]       # any() - returns the first truthy argument, else the last
