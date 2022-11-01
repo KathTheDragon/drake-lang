@@ -3,7 +3,7 @@ from collections.abc import AsyncIterable, AsyncIterator, Sequence
 from dataclasses import dataclass, field, InitVar
 from typing import TypeVar
 
-KEYWORDS = [
+KEYWORDS = {
     'and',
     'as',
     'assert',
@@ -44,7 +44,7 @@ KEYWORDS = [
     'xnor',
     'xor',
     'yield',
-]
+}
 OPERATORS = {
     '+': 'add',
     '-': 'sub',
