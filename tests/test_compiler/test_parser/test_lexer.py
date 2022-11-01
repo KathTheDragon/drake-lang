@@ -49,7 +49,7 @@ class TestLexNumber:
         assert (await lexer.lex_number(chars)) == ('HEXADECIMAL', '0x0')
 
     async def test_hexadecimal_only_accepts_hexdigits(self):
-        chars = await lexer.Chars.new(aiter(['0x0123456789abcedfg']))
+        chars = await lexer.Chars.new(aiter(['0x0123456789abcdefg']))
         assert (await lexer.lex_number(chars)) == ('HEXADECIMAL', '0x0123456789abcdef')
 
     async def test_integer_only_accepts_0_to_9(self):
