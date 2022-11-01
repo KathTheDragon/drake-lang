@@ -213,7 +213,7 @@ async def lex_newline(chars: Chars) -> tuple[str, str]:
 
 async def lex_whitespace(chars: Chars) -> tuple[str, str]:
     value = ''
-    while chars.next and chars.next in WHITESPACE:
+    while chars.next in WHITESPACE:
         value += chars.next
         await chars.advance()
     return 'WHITESPACE', value
@@ -267,7 +267,7 @@ async def digits(chars: Chars, alphabet: set = set(string.digits), lead: bool = 
 
 async def lex_name(chars: Chars) -> tuple[str, str]:
     value = ''
-    alphabet = string.ascii_letters + string.digits + '_'
+    alphabet = set(string.ascii_letters + string.digits + '_')
     while chars.next in alphabet:
         value += await chars.advance()
 
