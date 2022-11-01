@@ -177,49 +177,49 @@ async def lex(lines: AsyncIterator[str]) -> AsyncIterator[Token]:
     chars = await Chars.new(lines)
     while True:
         char = chars.next
+        start = chars.position
         if not char:
-            yield Token('EOF', 'eof', chars.position)
+            kind, value = 'EOF', 'eof'
         elif char in NEWLINES:
-            yield await lex_newline(chars)
+            kind, value = await lex_newline(chars)
         elif char in WHITESPACE:
-            yield await lex_whitespace(chars)
+            kind, value = await lex_whitespace(chars)
         elif char in string.digits:
-            yield await lex_number(chars)
+            kind, value = await lex_number(chars)
         elif char in string.ascii_letters or char == '_':
-            yield await lex_name(chars)
+            kind, value = await lex_name(chars)
         elif char in QUOTES:
-            yield await lex_string(chars)
+            kind, value = await lex_string(chars)
         elif char in PUNCTUATION:
-            yield await lex_punctuation(chars)
+            kind, value = await lex_punctuation(chars)
         else:
-            raise InvalidCharacter(char, *chars.position)
+            raise InvalidCharacter(char, *start)
+
+        yield Token(kind, value, start, chars.position)
 
 
-async def lex_newline(chars: Chars) -> Token:
-    start = chars.position
+async def lex_newline(chars: Chars) -> tuple[str, str]:
     char = await chars.advance()
     if char == '\n':
-        return Token('NEWLINE', '\n', start, chars.position)
+        return 'NEWLINE', '\n'
     else:
         char = chars.next
         if char == '\n':
             await chars.advance()
-            return Token('NEWLINE', '\r\n', start, chars.position)
+            return 'NEWLINE', '\r\n'
         else:
-            return Token('NEWLINE', '\r', start, chars.position)
+            return 'NEWLINE', '\r'
 
 
-async def lex_whitespace(chars: Chars) -> Token:
+async def lex_whitespace(chars: Chars) -> tuple[str, str]:
     value = ''
-    start = chars.position
     while chars.next and chars.next in WHITESPACE:
         value += chars.next
         await chars.advance()
-    return Token('WHITESPACE', value, start, chars.position)
+    return 'WHITESPACE', value
 
 
-async def lex_number(chars: Chars) -> Token:
-    start = chars.position
+async def lex_number(chars: Chars) -> tuple[str, str]:
     value = await chars.advance()
     if value == '0' and chars.next in INTEGER_TYPES:
         prefix = await chars.advance()
@@ -241,7 +241,7 @@ async def lex_number(chars: Chars) -> Token:
             kind = 'IMAGINARY'
         else:
             kind = 'REAL'
-    return Token(kind, value, start, chars.position)
+    return kind, value
 
 
 async def digits(chars: Chars, alphabet: set = set(string.digits), lead: bool = False) -> str:
@@ -265,8 +265,7 @@ async def digits(chars: Chars, alphabet: set = set(string.digits), lead: bool = 
     return value
 
 
-async def lex_name(chars: Chars) -> Token:
-    start = chars.position
+async def lex_name(chars: Chars) -> tuple[str, str]:
     value = ''
     alphabet = string.ascii_letters + string.digits + '_'
     while chars.next in alphabet:
@@ -276,11 +275,10 @@ async def lex_name(chars: Chars) -> Token:
         type = f'KW_{value.upper()}'
     else:
         type = 'NAME'
-    return Token(type, value, start, chars.position)
+    return type, value
 
 
-async def lex_string(chars: Chars) -> Token:
-    start = chars.position
+async def lex_string(chars: Chars) -> tuple[str, str]:
     value = quote = await chars.advance()
     while True:
         char = chars.next
@@ -294,11 +292,10 @@ async def lex_string(chars: Chars) -> Token:
         else:
             value += await chars.advance()
 
-    return Token('STRING', value, start, chars.position)
+    return 'STRING', value
 
 
-async def lex_punctuation(chars: Chars) -> Token:
-    start = chars.position
+async def lex_punctuation(chars: Chars) -> tuple[str, str]:
     value = ''
     while chars.next and any(token.startswith(value + chars.next) for token in OPERATORS | DELIMITERS):
         value += await chars.advance()
@@ -311,21 +308,21 @@ async def lex_punctuation(chars: Chars) -> Token:
         raise InvalidCharacter(chars.next, *chars.position)
 
     if type == 'LINE_COMMENT':
-        return await line_comment(chars, start)
+        return await line_comment(chars)
     elif type == 'BLOCK_COMMENT':
-        return await block_comment(chars, start)
+        return await block_comment(chars)
     else:
-        return Token(type, value, start, chars.position)
+        return type, value
 
 
-async def line_comment(chars: Chars, start: tuple[int, int]) -> Token:
+async def line_comment(chars: Chars) -> tuple[str, str]:
     value = '//'
     while chars.next and chars.next not in NEWLINES:
         value += await chars.advance()
-    return Token('COMMENT', value, start, chars.position)
+    return 'COMMENT', value
 
 
-async def block_comment(chars: Chars, start: tuple[int, int]) -> Token:
+async def block_comment(chars: Chars) -> tuple[str, str]:
     value = '/*'
     while not value.endswith('*/'):
         if chars.next:
@@ -333,4 +330,4 @@ async def block_comment(chars: Chars, start: tuple[int, int]) -> Token:
         else:
             raise InvalidCharacter('eof', *chars.position)
 
-    return Token('COMMENT', value, start, chars.position)
+    return 'COMMENT', value
