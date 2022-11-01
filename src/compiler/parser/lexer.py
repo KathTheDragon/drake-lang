@@ -309,21 +309,21 @@ async def lex_punctuation(chars: Chars) -> tuple[str, str]:
         raise InvalidCharacter(chars.next, *chars.position)
 
     if type == 'LINE_COMMENT':
-        return await line_comment(chars)
+        return 'COMMENT', await line_comment(chars)
     elif type == 'BLOCK_COMMENT':
-        return await block_comment(chars)
+        return 'COMMENT', await block_comment(chars)
     else:
         return type, value
 
 
-async def line_comment(chars: Chars) -> tuple[str, str]:
+async def line_comment(chars: Chars) -> str:
     value = '//'
     while chars.next and chars.next not in NEWLINES:
         value += await chars.advance()
-    return 'COMMENT', value
+    return value
 
 
-async def block_comment(chars: Chars) -> tuple[str, str]:
+async def block_comment(chars: Chars) -> str:
     value = '/*'
     while not value.endswith('*/'):
         if chars.next:
@@ -331,4 +331,4 @@ async def block_comment(chars: Chars) -> tuple[str, str]:
         else:
             raise InvalidCharacter('eof', *chars.position)
 
-    return 'COMMENT', value
+    return value
