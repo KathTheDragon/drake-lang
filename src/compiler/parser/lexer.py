@@ -145,8 +145,8 @@ async def aenumerate(aiterable: AsyncIterable[T], start: int = 0) -> AsyncIterat
 class Chars:
     lines: InitVar[AsyncIterator[str]]
     _iterator: AsyncIterator[tuple[str, tuple[int, int]]] = field(init=False)
-    next: str = field(init=False)
-    position: tuple[int, int] = field(init=False)
+    next: str = field(init=False, default='')
+    position: tuple[int, int] = field(init=False, default=(-1, -1))
 
     def __post_init__(self, lines: AsyncIterator[str]) -> None:
         self._iterator = self._iterate(lines)
@@ -154,7 +154,7 @@ class Chars:
     @staticmethod
     async def new(lines: AsyncIterator[str]) -> 'Chars':
         self = Chars(lines)
-        self._next, self._position = await self._iterator.__anext__()
+        await self.advance()
         return self
 
     @staticmethod
@@ -253,7 +253,7 @@ async def digits(chars: Chars, alphabet: set = set(string.digits)) -> str:
             if chars.next not in alphabet:
                 raise InvalidCharacter(chars.next, *chars.position)
         if chars.next in alphabet:
-            value += chars.advance()
+            value += await chars.advance()
         else:
             break
 
