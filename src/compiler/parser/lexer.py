@@ -120,8 +120,6 @@ class Token:
             self.end = self.start
 
 
-NULL = Token('', '')
-
 # Exceptions
 class InvalidCharacter(Exception):
     def __init__(self, char: str, linenum: int, column: int) -> None:
