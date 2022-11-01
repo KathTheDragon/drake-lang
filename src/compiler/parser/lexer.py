@@ -232,27 +232,21 @@ async def lex_number(chars: Chars) -> tuple[str, str]:
         if chars.next == '.':
             kind = 'REAL'
             value += await chars.advance()
-            value += await digits(chars, lead=True)
+            value += await digits(chars)
         if chars.next in ('e', 'E'):
             kind = 'REAL'
             value += await chars.advance()
             if chars.next in ('+', '-'):
                 value += await chars.advance()
-            value += await digits(chars, lead=True)
+            value += await digits(chars)
         if chars.next in ('j', 'J'):
             value += await chars.advance()
             kind = f'IMAGINARY_{kind}'
     return kind, value
 
 
-async def digits(chars: Chars, alphabet: set = set(string.digits), lead: bool = False) -> str:
-    if not lead:
-        value = ''
-    elif chars.next in alphabet:
-        value = await chars.advance()
-    else:
-        raise InvalidCharacter(chars.next, *chars.position)
-
+async def digits(chars: Chars, alphabet: set = set(string.digits)) -> str:
+    value = ''
     while True:
         if chars.next == '_':
             value += await chars.advance()
