@@ -141,6 +141,7 @@ async def aenumerate(aiterable: AsyncIterable[T], start: int = 0) -> AsyncIterat
         count += 1
 
 
+# Helper class
 @dataclass
 class Chars:
     lines: InitVar[AsyncIterator[str]]
@@ -173,6 +174,7 @@ class Chars:
         return next
 
 
+# Lexing functions
 async def lex(lines: AsyncIterator[str]) -> AsyncIterator[Token]:
     chars = await Chars.new(lines)
     while True:
@@ -183,7 +185,8 @@ async def lex(lines: AsyncIterator[str]) -> AsyncIterator[Token]:
         elif char in NEWLINES:
             kind, value = await lex_newline(chars)
         elif char in WHITESPACE:
-            kind, value = await lex_whitespace(chars)
+            await lex_whitespace(chars)
+            continue
         elif char in string.digits:
             kind, value = await lex_number(chars)
         elif char in string.ascii_letters or char == '_':
