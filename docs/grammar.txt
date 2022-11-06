@@ -8,7 +8,7 @@ program            -> List[expression]? EOF
 expression         -> keyword | operation
 
 keyword            -> declaration
-                    | if | match | for | while | throw | try                # "flow" control
+                    | if | match | try | throw | for | while                # "flow" control
                     | func | type | interface | exception | enum | module   # definitions
                     | iter | mutable                                        # modifiers
                     | assert | defer | import                               # other
@@ -18,10 +18,10 @@ if                 -> "if" expression "then" expression ("else" expression)?
 match              -> "match" expression "in" "{" List[case] "}" ("else" expression)?
 try                -> "try" expression "catch" "{" List[case] "}" ("else" expression)?
 case               -> pattern ("if" expression)? ":" expression
+throw              -> "throw" expression
 for                -> "for" List[loopvars] "yield" "from"? expression
 loopvars           -> pattern "in" expression ("if" expression)?
 while              -> "while" expression "yield" "from"? expression
-throw              -> "throw" expression
 func               -> "func" ("[" List[typeparam] "]")? paramlist "->" expression
 paramlist          -> ("self" | param) ("\n" param)* "\n"?
                     | ("self" | param) ("," param)* ","?
@@ -62,7 +62,8 @@ unary              -> ("not" | "!" | "+" | "-") unary  # inv(), pos(), neg()
                     | unary "?"                 # maybe()
                     | primary
 
-primary            -> atom ("." NAME | arglist | list)*
+primary            -> primary ("." NAME | arglist | list)
+                    | atom
 arglist            -> "(" List[arg]? ")"
 arg                -> (NAME ":")? expression
 atom               -> block | mapping | list | grouping | NAME | literal
