@@ -19,6 +19,7 @@ match              -> "match" expression "in" "{" List[case] "}" ("else" express
 try                -> "try" expression "catch" "{" List[case] "}" ("else" expression)?
 case               -> pattern ("if" expression)? ":" expression
 for                -> "for" List[loopvars] "yield" "from"? expression
+loopvars           -> pattern "in" expression ("if" expression)?
 while              -> "while" expression "yield" "from"? expression
 throw              -> "throw" expression
 func               -> "func" ("[" List[typeparam] "]")? paramlist "->" expression
