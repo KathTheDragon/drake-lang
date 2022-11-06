@@ -1,7 +1,8 @@
 import string
-from collections.abc import AsyncIterable, AsyncIterator, Sequence
+from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass, field, InitVar
-from typing import TypeVar
+
+from ...utils import aenumerate
 
 KEYWORDS = {
     'and',
@@ -131,14 +132,6 @@ class UnexpectedToken(Exception):
         if expected and not message:
             message = f'expected {", ".join(map(repr, expected))}, got'
         super().__init__(f'{message} {token}'.strip())
-
-
-T = TypeVar('T')
-async def aenumerate(aiterable: AsyncIterable[T], start: int = 0) -> AsyncIterator[tuple[int, T]]:
-    count = start
-    async for item in aiterable:
-        yield count, item
-        count += 1
 
 
 # Helper class
