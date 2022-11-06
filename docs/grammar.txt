@@ -65,7 +65,7 @@ unary              -> ("not" | "!" | "+" | "-") unary  # inv(), pos(), neg()
 primary            -> atom ("." NAME | arglist | list)*
 arglist            -> "(" List[arg]? ")"
 arg                -> (NAME ":")? expression
-atom               -> block | mapping | list | grouping | identifier | literal
+atom               -> block | mapping | list | grouping | NAME | literal
 block              -> "{" List[expression] "}"
 mapping            -> "{" List[pair]? "}"
 pair               -> expression ":" expression | "*" expression
@@ -73,7 +73,6 @@ list               -> "[" List[listitem]? "]"
 listitem           -> expression | "*" expression | range
 range              -> expression ".." ("="? expression)? (":" unary)?
 grouping           -> "(" List[(NAME ":")? expression]? ")"
-identifier         -> NAME
 literal            -> STRING | NUMBER | "true" | "false" | "none" | "break" | "continue"
 
 pattern            -> branch ("|" branch)* ("as" name)?
@@ -85,11 +84,11 @@ branch             -> instance
                     | binding
                     | p_literal
 value              -> "=" primary
-instance           -> identifier "(" List[(NAME ":")? pattern]? ")"
+instance           -> NAME "(" List[(NAME ":")? pattern]? ")"
 p_mapping          -> "{" List[pair]? "}"
 p_pair             -> pattern ":" pattern | "*" binding
 p_list             -> "[" List[listitem]? "]"
 p_listitem         -> pattern | "*" binding
 p_grouping         -> "(" List[(NAME ":")? pattern]? ")"
-binding            -> NAME | identifier ("." NAME)*
+binding            -> NAME ("." NAME)*
 p_literal          -> literal | ("+"|"-")? NUMBER (("+"|"-") NUMBER)?  # For matching negative and complex numbers
