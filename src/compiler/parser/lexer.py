@@ -1,5 +1,5 @@
 import string
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field, InitVar
 
 from ...utils import aenumerate
@@ -125,13 +125,6 @@ class Token:
 class InvalidCharacter(Exception):
     def __init__(self, char: str, linenum: int, column: int) -> None:
         super().__init__(f'{char!r} @ {linenum}:{column}')
-
-
-class UnexpectedToken(Exception):
-    def __init__(self, token: Token, expected: Sequence[str] = (), message: str = '') -> None:
-        if expected and not message:
-            message = f'expected {", ".join(map(repr, expected))}, got'
-        super().__init__(f'{message} {token}'.strip())
 
 
 # Helper class
