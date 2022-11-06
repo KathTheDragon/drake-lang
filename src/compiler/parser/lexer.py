@@ -123,6 +123,11 @@ class Token:
         if self.end == (-1, -1) and self.start != (-1, -1):
             self.end = self.start
 
+    def __bool__(self) -> bool:
+        return bool(self.kind)
+
+
+NULL = Token('', '')
 
 # Exceptions
 class InvalidCharacter(Exception):
