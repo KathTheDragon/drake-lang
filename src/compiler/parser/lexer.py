@@ -227,11 +227,11 @@ async def lex_number(chars: Chars) -> tuple[str, str]:
         kind = 'INTEGER'
         value += await digits(chars)
         if chars.next == '.':
-            kind = 'REAL'
+            kind = 'NUMBER'
             value += await chars.advance()
             value += await digits(chars)
         if chars.next in ('e', 'E'):
-            kind = 'REAL'
+            kind = 'NUMBER'
             value += await chars.advance()
             if chars.next in ('+', '-'):
                 value += await chars.advance()
