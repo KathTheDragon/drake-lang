@@ -1,6 +1,7 @@
 import string
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field, InitVar
+from typing import NewType
 
 from ...utils import aenumerate
 
@@ -109,12 +110,14 @@ PUNCTUATION = set(token[0] for token in OPERATORS | DELIMITERS)
 NEWLINES = set('\r\n')
 WHITESPACE = set(string.whitespace) - NEWLINES
 
+Position = NewType('Position', tuple[int, int])
+
 @dataclass
 class Token:
     kind: str
     value: str
-    start: tuple[int, int] = (-1, -1)
-    end: tuple[int, int] = (-1, -1)
+    start: Position = (-1, -1)
+    end: Position = (-1, -1)
 
     def __post_init__(self) -> None:
         if self.end == (-1, -1) and self.start != (-1, -1):
@@ -131,9 +134,9 @@ class InvalidCharacter(Exception):
 @dataclass
 class Chars:
     lines: InitVar[AsyncIterator[str]]
-    _iterator: AsyncIterator[tuple[str, tuple[int, int]]] = field(init=False)
+    _iterator: AsyncIterator[tuple[str, Position]] = field(init=False)
     next: str = field(init=False, default='')
-    position: tuple[int, int] = field(init=False, default=(-1, -1))
+    position: Position = field(init=False, default=Position((-1, -1)))
 
     def __post_init__(self, lines: AsyncIterator[str]) -> None:
         self._iterator = self._iterate(lines)
@@ -145,14 +148,14 @@ class Chars:
         return self
 
     @staticmethod
-    async def _iterate(lines: AsyncIterator[str]) -> AsyncIterator[tuple[str, tuple[int, int]]]:
+    async def _iterate(lines: AsyncIterator[str]) -> AsyncIterator[tuple[str, Position]]:
         linenum, column = 1, 0
         async for linenum, line in aenumerate(lines, start=linenum):
             column = 0
             for column, char in enumerate(line, start=column):
-                yield char, (linenum, column)
+                yield char, Position((linenum, column))
         while True:
-            yield '', (linenum, column + 1)
+            yield '', Position((linenum, column + 1))
 
     async def advance(self) -> str:
         next = self.next
