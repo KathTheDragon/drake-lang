@@ -29,9 +29,11 @@ param              -> typehint NAME (":" expression)?
 type               -> "type" ("[" List[typeparam] "]")? ("<" expression)? block
 interface          -> "interface" ("[" List[typeparam] "]")? ("<" expression)? block
 exception          -> "exception" ("[" List[typeparam] "]")? ("<" expression)? block
+enum               -> enum_simple | enum_flags
+enum_simple        -> "enum" ("[" List[typeparam] "]")? ("<" expression)? "{" List[enumitem] "}"
+enum_flags         -> "enum" "flags" "{" List[enumitem] "}"
 typeparam          -> ("+" | "-" | "=")? NAME (("<" | "<=") expression)?
-enum               -> "enum" "flags"? "{" List[enumitem] "}"
-enumitem           -> NAME (":" NUMBER)?
+enumitem           -> NAME (":" expression)?
 module             -> "module" block
 iter               -> "iter" (list | for | while)
 mutable            -> "mutable" (type | iter | mapping | list | STRING)
