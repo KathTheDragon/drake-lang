@@ -67,7 +67,7 @@ arglist            -> "(" List[arg]? ")"
 arg                -> (NAME ":")? expression
 atom               -> block | mapping | list | grouping | identifier | literal
 block              -> "{" List[expression] "}"
-mapping            -> "[" List[pair]? "]"
+mapping            -> "{" List[pair]? "}"
 pair               -> expression ":" expression | "*" expression
 list               -> "[" List[listitem]? "]"
 listitem           -> expression | "*" expression | range
@@ -86,7 +86,7 @@ branch             -> instance
                     | p_literal
 value              -> "=" primary
 instance           -> identifier "(" List[(NAME ":")? pattern]? ")"
-p_mapping          -> "[" List[pair]? "]"
+p_mapping          -> "{" List[pair]? "}"
 p_pair             -> pattern ":" pattern | "*" binding
 p_list             -> "[" List[listitem]? "]"
 p_listitem         -> pattern | "*" binding
