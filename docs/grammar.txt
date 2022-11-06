@@ -22,7 +22,7 @@ throw              -> "throw" expression
 for                -> "for" List[loopvars] "yield" "from"? expression
 loopvars           -> pattern "in" expression ("if" expression)?
 while              -> "while" expression "yield" "from"? expression
-func               -> "func" ("[" List[typeparam] "]")? paramlist "->" expression
+func               -> "func" ("[" List[typeparam] "]")? "(" paramlist? ")" "->" expression
 paramlist          -> ("self" | param) ("\n" param)* "\n"?
                     | ("self" | param) ("," param)* ","?
 param              -> typehint NAME (":" expression)?
