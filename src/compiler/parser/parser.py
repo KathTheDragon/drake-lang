@@ -20,7 +20,7 @@ class Tokens:
     lines: InitVar[AsyncIterator[str]]
     _iterator: AsyncIterator[lexer.Token] = field(init=False)
     _next: deque[lexer.Token] = field(init=False, default_factory=lambda: deque())
-    last: lexer.Token = lexer.NULL
+    last: lexer.Token = field(init=False, default_factory=lambda: lexer.NULL)
 
     def __post_init__(self, lines: AsyncIterator[str]) -> None:
         self._iterator = lexer.lex(lines)
