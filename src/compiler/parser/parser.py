@@ -58,8 +58,8 @@ class Node:
 T = TypeVar('T', bound=Node)
 ParserCoro = Callable[..., Coroutine[None, None, T]]
 async def _itemlist(
-        tokens: Tokens, itemcoro: ParserCoro[T], *lookahead: str, initial: bool = True,
-        optional: bool = True, separator: str = '', **kw) -> list[T]:
+        tokens: Tokens, itemcoro: ParserCoro[T], *lookahead: str, initial: bool = True, optional: bool = True,
+        separator: str = '', **kw) -> list[T]:
     items = []
     if optional and initial and await tokens.peek(*lookahead):
         return items
