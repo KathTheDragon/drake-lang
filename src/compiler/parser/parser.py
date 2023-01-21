@@ -44,7 +44,7 @@ class Tokens:
             self.last = next
             return self._next.popleft()
         else:
-            raise UnexpectedToken(next, kinds, message)
+            raise UnexpectedToken(await self.peek(), kinds, message)
 
     def push(self, token: lexer.Token) -> None:
         self._next.appendleft(token)
