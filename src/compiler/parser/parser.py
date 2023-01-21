@@ -1,5 +1,5 @@
 from collections import deque
-from collections.abc import Coroutine, Sequence
+from collections.abc import Awaitable, Sequence
 from dataclasses import dataclass, field, InitVar
 from typing import AsyncIterator, Callable, ClassVar, TypeVar
 
@@ -56,7 +56,7 @@ class Node:
 
 
 T = TypeVar('T', bound=Node)
-ParserCoro = Callable[..., Coroutine[None, None, T]]
+ParserCoro = Callable[..., Awaitable[T]]
 async def _itemlist(
         tokens: Tokens, itemcoro: ParserCoro[T], *lookahead: str, initial: bool = True, optional: bool = True,
         separator: str = '', **kw) -> list[T]:
