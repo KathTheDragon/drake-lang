@@ -116,8 +116,8 @@ Position = NewType('Position', tuple[int, int])
 class Token:
     kind: str
     value: str
-    start: Position = (-1, -1)
-    end: Position = (-1, -1)
+    start: Position = field(compare=False, default=(-1, -1))
+    end: Position = field(compare=False, default=(-1, -1))
 
     def __post_init__(self) -> None:
         if self.end == (-1, -1) and self.start != (-1, -1):
