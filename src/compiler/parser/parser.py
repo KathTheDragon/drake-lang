@@ -226,8 +226,9 @@ class Pair(Node):
     value: Expression
 
     @staticmethod
-    async def parse(tokens: Tokens) -> 'Pair':
-        key = await Expression.parse(tokens)
+    async def parse(tokens: Tokens, key: Expression | None = None) -> 'Pair':
+        if key is None:
+            key = await Expression.parse(tokens)
         await tokens.pop('COLON')
         return Pair(key, await Expression.parse(tokens))
 
@@ -241,8 +242,8 @@ async def parse_mapping_item(tokens: Tokens) -> StarExpression | Pair:
 
 async def parse_expression_or_pair(tokens: Tokens) -> Expression | Pair:
     expression = await Expression.parse(tokens)
-    if await tokens.maybe('COLON'):
-        return Pair(expression, await Expression.parse(tokens))
+    if await tokens.peek('COLON'):
+        return await Pair.parse(tokens, expression)
     else:
         return expression
 
